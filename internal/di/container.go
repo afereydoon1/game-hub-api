@@ -8,6 +8,7 @@ import (
 	"game-hub-backend/internal/infra/auth"
 	"game-hub-backend/internal/infra/config"
 	"game-hub-backend/internal/infra/database/repository"
+	localStorage "game-hub-backend/internal/infra/storage/local"
 
 	"gorm.io/gorm"
 )
@@ -21,6 +22,7 @@ func InitHandlers(db *gorm.DB, cfg *config.Config) *AppHandlers {
 
 	// Services
 	jwtService := auth.NewJWTService(cfg.JWTSecret)
+	storageService := localStorage.NewStorageService()
 
 	// User
 	userRepo := repository.NewUserRepository(db)
@@ -30,7 +32,7 @@ func InitHandlers(db *gorm.DB, cfg *config.Config) *AppHandlers {
 	//Genres
 	genreRepo := repository.NewGenreRepository(db)
 	genreUseCase := genreApp.NewGenreUseCase(genreRepo)
-	genreHandler := httpDelivery.NewGenreHandler(genreUseCase)
+	genreHandler := httpDelivery.NewGenreHandler(genreUseCase, storageService)
 
 	return &AppHandlers{
 		UserHandler:  userHandler,
